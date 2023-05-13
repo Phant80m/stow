@@ -72,7 +72,7 @@ if [[ "$1" == "--help" ]]; then
 _help
 elif [[ "$1" == "stow" ]]; then
   # create a backup just in case
-  backup="./CONFIG_BACKUP"
+  backup="${HOME}/.stowed/CONFIG_BACKUP"
   if [ -d "$backup" ]; then
     echo -e "${BOLD_YELLOW}[CHECK]: Backup directory already exists. Skipping backup creation.${RESET}"
   else
