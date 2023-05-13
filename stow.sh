@@ -36,9 +36,7 @@ RESET='\033[0m'
 #  CORE VARS
 stow_dir="$HOME/dotfiles"
 
-if [[ "$1" == "--help" ]]; then
-  # help --> 
-function help {
+function _help() {
   echo -e "${BOLD_GREEN}Usage: $0${RESET} [${BOLD_BLUE}action${RESET}]"
   echo -e ""
   echo -e "${BOLD_BLUE}Available actions:${RESET}"
@@ -69,7 +67,9 @@ function help {
   echo -e "  To unstow the dotfiles, run: ${BOLD_GREEN}$0 unstow${RESET}"
   echo -e "  To remove the backup of your original configuration files, run: ${BOLD_GREEN}$0 clean${RESET}"
 }
-help
+if [[ "$1" == "--help" ]]; then
+  # help --> 
+_help
 elif [[ "$1" == "stow" ]]; then
   # create a backup just in case
   backup="./CONFIG_BACKUP"
@@ -127,8 +127,34 @@ elif [[ "$1" == "unstow" ]]; then
       echo -e "${BOLD_GREEN}[UNLINKED]: $dir${RESET}"
     fi
   done
+elif [[ "$1" == "install" ]]; then
+  sudo cp stow.sh /usr/bin/stowed
+  sudo chmod +x /usr/bin/stowed
+
+  # Define color codes
+  GREEN='\033[0;32m'
+  NC='\033[0m'
+
+  # Check if fish shell is installed
+  if command -v fish >/dev/null 2>&1; then
+    # Install completion file for fish shell
+    mkdir -p ~/.config/fish/completions
+    cp ./stowed-autocomp.fish ~/.config/fish/completions/
+    echo "Fish shell auto completion installed"
+  fi
+
+  # Notify user that stow.sh has been installed
+  echo -e "${GREEN}stow.sh has been installed to /usr/bin as stowed. run stowed for help${NC}"
+
+elif [[ "$1" == "uninstall" ]]; then
+  if [ -f /usr/bin/stowed ]; then
+    sudo rm -f /usr/bin/stowed
+    echo -e "${BOLD_RED}stowed uninstalled${RESET}"
+  else
+    echo -e "${BOLD_RED}Error: stowed not found in /usr/bin.${RESET}"
+  fi
 
 else
   # main -->
-  echo "main"
+  _help
 fi
