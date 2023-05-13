@@ -12,6 +12,8 @@ The script takes one argument, which is the action to perform. The available act
     stow: Stow the dotfiles to the home directory.
     unstow: Unstow the dotfiles from the home directory.
     clean: Remove the backup of the original configuration files.
+    --help: help message
+    --no-color: no color (some vars may still appear colored)
 
 The script also has an option --help that shows the help message, which includes information on the available actions, options, and examples of how to use the script.
 
