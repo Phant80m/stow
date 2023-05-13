@@ -33,3 +33,21 @@ BACKGROUND_WHITE='\033[47m'
 # Reset all colors
 RESET='\033[0m'
 
+# rnbw
+# Define a function that outputs a rainbow-colored string
+function bold_rainbow {
+  # Define the color palette
+  colors=("\033[31m" "\033[33m" "\033[32m" "\033[36m" "\033[34m" "\033[35m")
+  
+  # Loop through each character in the string argument
+  for (( i=0; i<${#1}; i++ )); do
+    # Get the color code based on the index in the color palette
+    color="${colors[$i % ${#colors[@]}]}"
+    
+    # Output the character in the color
+    echo -ne "${color}${1:$i:1}"
+  done
+  
+  # Reset the color to default
+  echo -e "\033[0m"
+}

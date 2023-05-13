@@ -40,39 +40,7 @@ function help {
 }
 help
 elif [[ "$1" == "stow" ]]; then
-  # stow -->
-  echo -e "$BOLD_PURPLE[CHECKS $RED X $BOLD_PURPLE / $GREEN  $BOLD_PURPLE]:$RESET"
-  
-  # test if ~/dotfiles exists:
-  if test -d "$stow_dir"; then
-    echo -e "$BOLD_GREEN[CHECK]: Directory $stow_dir exists$RESET"
-  else
-    echo -e "${BOLD_RED}[CHECK]: ~/dotfiles directory does not exist.${RESET}"
-  fi
- 
-  # test if ~/dotfiles/.config exists
-  if test -d "$stow_dir/.config"; then
-    echo -e "${BOLD_GREEN}[CHECK]: $stow_dir/.config exists.${RESET}"
-  else
-    echo -e "${BOLD_RED}[CHECK]: $stow_dir/.config does not exist.${RESET}"
-  fi
-
-  # link dirs
-  # check if conflicting names in ~/dotfiles/.config/* exist in ~/.config
-  for dir in "$stow_dir/.config/"*; do
-    base_dir=$(basename "$dir")
-    if [ -d "$HOME/.config/$base_dir" ]; then
-      if [ -z "$(ls -A $HOME/.config/$base_dir)" ]; then
-        echo -e "${BOLD_YELLOW}[INFO]: Directory $base_dir exists in $HOME/.config but is empty. Deleting...${RESET}"
-        rm -rf "$HOME/.config/$base_dir"
-      else
-        echo -e "${BOLD_RED}[CHECK]: Directory $base_dir exists in $HOME/.config and will be overridden.${RESET}"
-      fi
-    fi
-    ln -sf "$dir" "$HOME/.config/"
-  done
-
-  # create a backup just incase
+  # create a backup just in case
   backup="./CONFIG_BACKUP"
   if [ -d "$backup" ]; then
     echo -e "${BOLD_YELLOW}[CHECK]: Backup directory already exists. Skipping backup creation.${RESET}"
@@ -82,6 +50,28 @@ elif [[ "$1" == "stow" ]]; then
     echo -e "${BOLD_GREEN}[CHECK]: Backup created in $backup.${RESET}"
   fi
   
+  # link dirs
+ for dir in "$stow_dir/.config/"*; do
+    base_dir=$(basename "$dir")
+    if [ -d "$HOME/.config/$base_dir" ]; then
+      if [ -z "$(ls -A $HOME/.config/$base_dir)" ]; then
+        echo -e "${BOLD_YELLOW}[INFO]: Directory $base_dir exists in $HOME/.config but is empty. Deleting...${RESET}"
+        rm -rf "$HOME/.config/$base_dir"
+      else
+        echo -e "${BOLD_RED}[CHECK]: Directory $base_dir exists in $HOME/.config and will be overridden.${RESET}"
+        echo -e "${BOLD_YELLOW}[INFO]: Deleting $HOME/.config/$base_dir...${RESET}"
+        rm -rf "$HOME/.config/$base_dir"
+      fi
+    fi
+    if ! ln -sf "$dir" "$HOME/.config/"; then
+      echo -e "${BOLD_YELLOW}[INFO]: Failed to link $base_dir. Deleting $HOME/.config/$base_dir and trying again...${RESET}"
+      rm -rf "$HOME/.config/$base_dir"
+      ln -sf "$dir" "$HOME/.config/" && echo -e "${BOLD_RAINBOW}[SUCCESS]: Linked $base_dir!${RESET}"
+    else
+      echo -e "${BOLD_PURPLE}[SUCCESS]: Linked $base_dir!${RESET}"
+    fi
+  done
+
 elif [[ "$1" == "clean" ]]; then
   echo -e "${BOLD_RED}Are you sure you want to delete the config backup?$BOLD_GREEN [ y / n ]$RESET"
   read confirm
