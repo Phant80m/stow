@@ -71,7 +71,7 @@ function _help() {
   echo -e "  ${BOLD_BLUE}stow${RESET}: Stow the dotfiles to your home directory."
   echo -e "  ${BOLD_BLUE}unstow${RESET}: Unstow the dotfiles from your home directory."
   echo -e "  ${BOLD_BLUE}clean${RESET}: Remove the backup of your original configuration files."
-  echo -e "  ${BOLD_BLUE}deps${RESET}: Installs the dependencies from a file. ${BOLD_RED}! ONLY WORKS ON ARCH ! $RESET"
+  echo -e "  ${BOLD_BLUE}deps${RESET}: Installs the dependencies from a file. ${BOLD_RED}! ONLY WORKS ON ARCH and UBUNTU ( $0 deps --apt ) ! $RESET"
   echo -e "  ${BOLD_BLUE}--no-color | -nc ${RESET}: Disable color"
   echo -e "  ${BOLD_BLUE}install${RESET}: Installs the script $0 to /usr/bin/stowed"
   echo -e "  ${BOLD_BLUE}uninstall${RESET}: removes the script $0 from /usr/bin/stowed"
@@ -200,23 +200,35 @@ elif [[ "$1" == "uninstall" ]]; then
 
 # deps instalelr
 elif [[ "$1" == "deps" ]]; then
-  deps_file="$stow_dir/dependencies"
-  if [[ -f "$deps_file" ]]; then
-    if command -v paru >/dev/null 2>&1; then
-      echo -e "${BOLD_YELLOW}[INFO]: using paru for installing dependencies ${RESET}"
-      sudo paru -S --needed $(cat "$deps_file")
-    elif command -v yay >/dev/null 2>&1; then
-      echo -e "${BOLD_YELLOW}[INFO]: using yay for installing dependencies ${RESET}"
-      sudo yay -S --needed $(cat "$deps_file")
+  if [[ "$2" == "--apt" ]]; then
+    deps_file="$stow_dir/dependencies-apt"
+    if [[ -f "$deps_file" ]]; then
+      echo -e "${BOLD_YELLOW}[INFO]: using apt-get for installing dependencies ${RESET}"
+      sudo apt-get install $(cat "$deps_file")
     else
-      echo -e "${BOLD_RED}[WARNING]: paru and yay are not installed, using pacman. AUR dependencies may fail. Please install paru or yay.${RESET}"
-      sudo pacman -S --needed $(cat "$deps_file")
+      echo -e "${BOLD_RED}No apt dependencies file found in $stow_dir/dependencies-apt \n Create the file $stow_dir/dependencies-apt $RESET"
     fi
   else
-    echo -e "${BOLD_RED}No dependencies file found in $stow_dir/dependencies \n Create the file $stow_dir/dependencies $RESET"
+    deps_file="$stow_dir/dependencies"
+    if [[ -f "$deps_file" ]]; then
+      if command -v paru >/dev/null 2>&1; then
+        echo -e "${BOLD_YELLOW}[INFO]: using paru for installing dependencies ${RESET}"
+        sudo paru -S --needed $(cat "$deps_file")
+      elif command -v yay >/dev/null 2>&1; then
+        echo -e "${BOLD_YELLOW}[INFO]: using yay for installing dependencies ${RESET}"
+        sudo yay -S --needed $(cat "$deps_file")
+      else
+        echo -e "${BOLD_RED}[WARNING]: paru and yay are not installed, using pacman. AUR dependencies may fail. Please install paru or yay.${RESET}"
+        sudo pacman -S --needed $(cat "$deps_file")
+      fi
+    else
+      echo -e "${BOLD_RED}No dependencies file found in $stow_dir/dependencies \n Create the file $stow_dir/dependencies $RESET"
+    fi
   fi
 
 else
   # main -->
+
+  # --> spawn help function.
   _help
 fi
