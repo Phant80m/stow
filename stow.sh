@@ -75,6 +75,7 @@ function _help() {
   echo -e "  ${BOLD_BLUE}--no-color | -nc ${RESET}: Disable color"
   echo -e "  ${BOLD_BLUE}install${RESET}: Installs the script $0 to /usr/bin/stowed"
   echo -e "  ${BOLD_BLUE}uninstall${RESET}: removes the script $0 from /usr/bin/stowed"
+  echo -e "  ${BOLD_BLUE}--fix-broken${RESET}: fix broken symbolic links in $HOME/.config"
   echo -e ""
   echo -e "${BOLD_BLUE}Description:${RESET}"
   echo -e "  This script is used to stow and unstow dotfiles in your home directory."
@@ -225,10 +226,16 @@ elif [[ "$1" == "deps" ]]; then
       echo -e "${BOLD_RED}No dependencies file found in $stow_dir/dependencies \n Create the file $stow_dir/dependencies $RESET"
     fi
   fi
+elif [[ "$1" == "--fix-broken" ]]; then
+    echo -e "$BOLD_YELLOW Removing broken symlinks in $HOME/.config $RESET"
+    find "$HOME/.config" -xtype l -exec rm {} \;
+    echo -e "$BOLD_GREEN Broken symbolic links were successfully removed.$RESET"
 
+# main fn...
 else
   # main -->
 
   # --> spawn help function.
   _help
 fi
+
