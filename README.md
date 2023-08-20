@@ -6,7 +6,7 @@ Gnu Stow... but mine
 
 
 This is a Bash script that can be used to stow and unstow dotfiles in the home directory. Stowing is the process of creating symlinks from a directory named $HOME/dotfiles to their corresponding locations in the home directory. Unstowing, on the other hand, removes the symlinks that were created by the script. The script can also create a backup of the original configuration files before overriding them with the symlinks.
-
+# outdated: run stowed --help for full list of commands!
 The script takes one argument, which is the action to perform. The available actions are:
 
     stow: Stow the dotfiles to the home directory.
