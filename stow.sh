@@ -77,6 +77,7 @@ function _help() {
   echo -e "  ${BOLD_BLUE}uninstall${RESET}: removes the script $0 from /usr/bin/stowed"
   echo -e "  ${BOLD_BLUE}--fix-broken${RESET}: fix broken symbolic links in $HOME/.config"
   echo -e ""
+  echo -e "  ${BOLD_RED}sadly you cannot double up arguments as of yet (no-color is not included), example: stowed stow --fix-broken\n$RESET"
   echo -e "${BOLD_BLUE}Description:${RESET}"
   echo -e "  This script is used to stow and unstow dotfiles in your home directory."
   echo -e "  It will symlink files from a directory named ${BOLD_GREEN}\$HOME/dotfiles/.config${RESET} to their"
@@ -101,6 +102,21 @@ function _help() {
   echo -e "  To remove the backup of your original configuration files, run: ${BOLD_GREEN}$0 clean${RESET}"
   echo -e "  To install the dependencies for the dotfiles run: ${BOLD_GREEN}$0 deps${RESET}"
 
+}
+function _help_short() {
+  echo -e "  ${BOLD_GREEN}Usage: $0${RESET} [${BOLD_BLUE}action${RESET}]"
+  echo -e ""
+  echo -e "  ${BOLD_BLUE}Available actions:${RESET}"
+  echo -e "    ${BOLD_BLUE}stow${RESET}: Stow the dotfiles to your home directory."
+  echo -e "    ${BOLD_BLUE}unstow${RESET}: Unstow the dotfiles from your home directory."
+  echo -e "    ${BOLD_BLUE}clean${RESET}: Remove the backup of your original configuration files."
+  echo -e "    ${BOLD_BLUE}deps${RESET}: Installs the dependencies from a file. ${BOLD_RED}! ONLY WORKS ON ARCH and UBUNTU ( $0 deps --apt ) ! $RESET"
+  echo -e "    ${BOLD_BLUE}--no-color | -nc ${RESET}: Disable color"
+  echo -e "    ${BOLD_BLUE}install${RESET}: Installs the script $0 to /usr/bin/stowed"
+  echo -e "    ${BOLD_BLUE}uninstall${RESET}: removes the script $0 from /usr/bin/stowed"
+  echo -e "    ${BOLD_BLUE}--fix-broken${RESET}: fix broken symbolic links in $HOME/.config"
+  echo -e ""
+  echo -e "    ${BOLD_RED}sadly you cannot double up arguments as of yet, example: stowed stow --fix-broken\n$RESET"
 }
 
 
@@ -214,10 +230,10 @@ elif [[ "$1" == "deps" ]]; then
     if [[ -f "$deps_file" ]]; then
       if command -v paru >/dev/null 2>&1; then
         echo -e "${BOLD_YELLOW}[INFO]: using paru for installing dependencies ${RESET}"
-        sudo paru -S --needed $(cat "$deps_file")
+        paru -S --needed $(cat "$deps_file")
       elif command -v yay >/dev/null 2>&1; then
         echo -e "${BOLD_YELLOW}[INFO]: using yay for installing dependencies ${RESET}"
-        sudo yay -S --needed $(cat "$deps_file")
+        yay -S --needed $(cat "$deps_file")
       else
         echo -e "${BOLD_RED}[WARNING]: paru and yay are not installed, using pacman. AUR dependencies may fail. Please install paru or yay.${RESET}"
         sudo pacman -S --needed $(cat "$deps_file")
@@ -226,7 +242,7 @@ elif [[ "$1" == "deps" ]]; then
       echo -e "${BOLD_RED}No dependencies file found in $stow_dir/dependencies \n Create the file $stow_dir/dependencies $RESET"
     fi
   fi
-elif [[ "$1" == "--fix-broken" ]]; then
+elif [[ $* == "--fix-broken" ]]; then
     echo -e "$BOLD_YELLOW Removing broken symlinks in $HOME/.config $RESET"
     find "$HOME/.config" -xtype l -exec rm {} \;
     echo -e "$BOLD_GREEN Broken symbolic links were successfully removed.$RESET"
@@ -234,8 +250,10 @@ elif [[ "$1" == "--fix-broken" ]]; then
 # main fn...
 else
   # main -->
-
+  echo -e "\
+  ${BOLD_RED}Not a known command!
+  run: stowed --help for an in-depth help page\n\n"
   # --> spawn help function.
-  _help
+  _help_short
 fi
 
