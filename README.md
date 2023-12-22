@@ -1,3 +1,4 @@
+# Stowed is outdated use https://github.com/phant80m/seraphite 
 # stowed
 Gnu Stow... but mine
 ---
